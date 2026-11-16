@@ -1,0 +1,521 @@
+// 面板 HTML —— 由原 panel.html 原样内嵌为 Rust 字符串常量（对应 Go 版 html.go 的 //go:embed）。
+// 修改面板样式/脚本请直接编辑本文件顶部的 PANEL_HTML 原始字符串。
+pub const PANEL_HTML: &str = r#"<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Linux 更新管理器</title>
+<link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACSUlEQVR4nMWX3U4TQRTH/7vxft7EBLDBXgCmDY2KMSHBNzARiaLivVwjxoaGQExI5A28sEEDijdUSynEEHyQfYK/F+3sznRnd2Z2Szg37Xz+zsecM7NASVm83GOZ9YHP5KWrzyQJgiABgBi0AZJJm0B7ctlpb6dJS1f7TGB2OEFgOHYwtZLLyB188m+fOswO/zrxLHp0sSvkmFTme+WlkRWOGw4A7cnnkQongEavZTwrRgXKwKUcTK1EUOYSxPzpVkqJlAJF4IPetOhhGPyvd5vaZC0uReHtiWXNelUaZy0h4RyuA4Dj6lqQ8sC44QBwWFmNRuHyV1OgSKrZ4FKOpl9FKpwg5jqbBIBbiv3eeb5wsSvU0/7tzotYoUavJUyWq+3YAz4VTk2t0VRTxQYniZmTDYb6YHG4atVwl1y45IXJ5HLwUR+4wEEOFRgH3FAKbHCCMgvKw1MhcICTRLh4uUcb3FTbR+GpEDjACSD8cvtpYIMD5tquwk0esMGVM5Dt9ofnOwIAHvS3hQ1e+/NRAMC93x+EC5zg4C54/PcTi8Tc7GY3y+VYUgduAB5nwU3BQSbX8cL5DvPgh5XVuM7Xu804xsfVtbh/rrMpfOC92rsgvg2LFhmtzwMu12oPkvv9bea5/cf068zrd7bzXvjAz2rr6QeJT56nPeIOV7dKPZUbvRZtB+5X9W3sCV/LSaBfXw8yFQCA+dMtjvu0m+CZCgBAvdvkdcOBnA+Tn3ffBNcNz/WAKvIBWQQuT3uWeH0dz5xs0KfIuOz5Hy5RtlFGa33nAAAAAElFTkSuQmCC">
+<link rel="apple-touch-icon" sizes="192x192" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#f4f6fa;--card:#fff;--card2:#f8f9fc;--border:#e2e8f0;
+    --accent:#6c63ff;--accent2:#10b981;--danger:#ef4444;--warn:#f59e0b;
+    --text:#1e293b;--text2:#64748b;--green:#10b981;
+    --shadow:0 1px 8px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+    --shadow-lg:0 8px 32px rgba(0,0,0,.12);
+  }
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;min-height:100vh}
+  header{background:#fff;border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+  header h1{font-size:1.1rem;font-weight:700;display:flex;align-items:center;gap:8px;color:var(--text)}
+  .subtitle{color:var(--text2);font-size:.75rem;margin-top:2px}
+  .btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:500;transition:all .15s;white-space:nowrap;line-height:1}
+  .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#5a52e0}
+  .btn-success{background:var(--accent2);color:#fff}.btn-success:hover{background:#059669}
+  .btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#dc2626}
+  .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{background:var(--card2);color:var(--text)}
+  .btn-sm{padding:6px 10px;font-size:.78rem;border-radius:6px}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  main{padding:20px;max-width:1400px;margin:0 auto}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);transition:box-shadow .2s;position:relative;overflow:hidden}
+  .card:hover{box-shadow:var(--shadow-lg)}
+  .card-top-bar{height:3px;border-radius:3px 3px 0 0;position:absolute;top:0;left:0;right:0}
+  .card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+  .card-title{font-size:.95rem;font-weight:600;display:flex;align-items:center;gap:7px;color:var(--text)}
+  .type-badge{font-size:.68rem;padding:2px 7px;border-radius:20px;font-weight:600;letter-spacing:.3px}
+  .badge-core{background:rgba(108,99,255,.12);color:#6c63ff}
+  .badge-file{background:rgba(16,185,129,.12);color:#10b981}
+  .badge-package{background:rgba(245,158,11,.12);color:#f59e0b}
+  .card-body{display:grid;gap:7px;margin-bottom:14px}
+  .info-row{display:flex;align-items:center;gap:8px;font-size:.82rem}
+  .info-label{color:var(--text2);min-width:62px;flex-shrink:0;font-size:.78rem}
+  .info-val{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+  .versions-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .version-tag{background:rgba(108,99,255,.1);color:var(--accent);padding:2px 8px;border-radius:6px;font-family:monospace;font-size:.78rem;font-weight:600}
+  .version-tag.latest{background:rgba(16,185,129,.1);color:var(--accent2)}
+  .version-tag.empty{background:#f1f5f9;color:var(--text2)}
+  .version-arrow{color:var(--text2);font-size:.75rem}
+  .status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .dot-idle{background:#cbd5e1}.dot-ok{background:var(--green)}.dot-error{background:var(--danger)}
+  .dot-checking,.dot-updating{background:var(--warn);animation:pulse 1s infinite}
+  .dot-update_available{background:#f97316;animation:pulse .8s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .card-actions{display:flex;gap:7px;flex-wrap:wrap}
+  .repo-link{color:var(--accent);text-decoration:none;font-size:.75rem}.repo-link:hover{text-decoration:underline}
+  .cron-tag{font-size:.72rem;background:rgba(108,99,255,.1);color:var(--accent);padding:1px 6px;border-radius:4px;font-family:monospace}
+  .last-time{font-size:.72rem;color:var(--text2)}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(3px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+  .modal-bg.hidden{display:none}
+  .modal{background:var(--card);border:1px solid var(--border);border-radius:16px;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+  .modal-header{padding:18px 20px 0;display:flex;align-items:center;justify-content:space-between}
+  .modal-header h2{font-size:1rem;font-weight:600;color:var(--text)}
+  .modal-close{background:none;border:none;color:var(--text2);font-size:1.2rem;cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:7px}
+  .modal-close:hover{background:var(--card2);color:var(--text)}
+  .modal-body{padding:18px 20px}.modal-footer{padding:0 20px 18px;display:flex;gap:8px;justify-content:flex-end}
+  .form-group{margin-bottom:14px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  label{display:block;font-size:.8rem;color:var(--text2);margin-bottom:5px;font-weight:500}
+  label .req{color:var(--danger)}
+  input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 11px;color:var(--text);font-size:.85rem;outline:none;transition:border-color .15s;font-family:inherit}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);background:#fff}
+  input::placeholder,textarea::placeholder{color:var(--text2)}
+  textarea{resize:vertical;min-height:56px}
+  .hint{font-size:.72rem;color:var(--text2);margin-top:3px}
+  .divider{border:none;border-top:1px solid var(--border);margin:14px 0}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .toggle-row .toggle-label{font-size:.85rem;font-weight:500;color:var(--text)}
+  .toggle-wrap{flex-shrink:0;cursor:pointer}
+  .toggle{width:38px;height:22px;border-radius:11px;background:#cbd5e1;position:relative;transition:background .15s}
+  .toggle.on{background:var(--accent)}
+  .toggle-knob{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .15s}
+  .toggle.on .toggle-knob{transform:translateX(16px)}
+  .confirm-modal{background:var(--card);border:1px solid var(--border);border-radius:14px;width:100%;max-width:380px;box-shadow:var(--shadow-lg);padding:26px 22px}
+  .confirm-icon{font-size:2.2rem;margin-bottom:10px;display:block;text-align:center}
+  .confirm-title{font-size:1rem;font-weight:600;color:var(--text);text-align:center;margin-bottom:8px}
+  .confirm-msg{font-size:.84rem;color:var(--text2);text-align:center;line-height:1.6;margin-bottom:20px}
+  .confirm-actions{display:flex;gap:10px;justify-content:center}
+  .log-box{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:12px;font-family:'Courier New',monospace;font-size:.75rem;max-height:460px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;color:#334155;line-height:1.65}
+  .log-sep{color:#94a3b8}.log-ok{color:#10b981}.log-err{color:#ef4444}.log-info{color:#6c63ff}.log-warn{color:#f59e0b}
+  .toast-container{position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:7px}
+  .toast{background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:.82rem;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;animation:slideIn .25s ease;max-width:300px}
+  @keyframes slideIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+  .toast.success{border-left:3px solid var(--green)}.toast.error{border-left:3px solid var(--danger)}.toast.info{border-left:3px solid var(--accent)}
+  @media(max-width:600px){
+    header{padding:12px 14px}header h1{font-size:1rem}
+    main{padding:12px}.grid{grid-template-columns:1fr;gap:12px}
+    .card{padding:14px}.form-row{grid-template-columns:1fr}
+    .card-actions .btn-sm{flex:1;justify-content:center}
+    .modal-bg{padding:10px}.toast-container{right:10px;top:10px}.toast{max-width:260px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACSUlEQVR4nMWX3U4TQRTH/7vxft7EBLDBXgCmDY2KMSHBNzARiaLivVwjxoaGQExI5A28sEEDijdUSynEEHyQfYK/F+3sznRnd2Z2Szg37Xz+zsecM7NASVm83GOZ9YHP5KWrzyQJgiABgBi0AZJJm0B7ctlpb6dJS1f7TGB2OEFgOHYwtZLLyB188m+fOswO/zrxLHp0sSvkmFTme+WlkRWOGw4A7cnnkQongEavZTwrRgXKwKUcTK1EUOYSxPzpVkqJlAJF4IPetOhhGPyvd5vaZC0uReHtiWXNelUaZy0h4RyuA4Dj6lqQ8sC44QBwWFmNRuHyV1OgSKrZ4FKOpl9FKpwg5jqbBIBbiv3eeb5wsSvU0/7tzotYoUavJUyWq+3YAz4VTk2t0VRTxQYniZmTDYb6YHG4atVwl1y45IXJ5HLwUR+4wEEOFRgH3FAKbHCCMgvKw1MhcICTRLh4uUcb3FTbR+GpEDjACSD8cvtpYIMD5tquwk0esMGVM5Dt9ofnOwIAHvS3hQ1e+/NRAMC93x+EC5zg4C54/PcTi8Tc7GY3y+VYUgduAB5nwU3BQSbX8cL5DvPgh5XVuM7Xu804xsfVtbh/rrMpfOC92rsgvg2LFhmtzwMu12oPkvv9bea5/cf068zrd7bzXvjAz2rr6QeJT56nPeIOV7dKPZUbvRZtB+5X9W3sCV/LSaBfXw8yFQCA+dMtjvu0m+CZCgBAvdvkdcOBnA+Tn3ffBNcNz/WAKvIBWQQuT3uWeH0dz5xs0KfIuOz5Hy5RtlFGa33nAAAAAElFTkSuQmCC" style="width:28px;height:28px;border-radius:50%;vertical-align:middle"> Linux 更新管理器</h1>
+    <div class="subtitle">自动监控 GitHub Release，保持程序最新</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button class="btn btn-ghost" id="logoutBtn" onclick="doLogout()" style="display:none">&#x1F513; 退出登录</button>
+    <button class="btn btn-primary" onclick="openModal()">&#xFF0B; 添加任务</button>
+  </div>
+</header>
+
+<main>
+  <div class="grid" id="taskGrid"></div>
+
+</main>
+
+<!-- Add/Edit Modal -->
+<div class="modal-bg hidden" id="modalBg">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">添加任务</h2>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>任务名称 <span class="req">*</span></label>
+          <input id="fName" placeholder="例如：sing-box">
+        </div>
+        <div class="form-group">
+          <label>更新类型 <span class="req">*</span></label>
+          <select id="fType">
+            <option value="core">核心（可执行文件）</option>
+            <option value="file">文件（原样替换）</option>
+            <option value="package">安装包（deb/rpm/pkg）</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>GitHub 项目地址 <span class="req">*</span></label>
+        <input id="fRepo" placeholder="https://github.com/owner/repo">
+      </div>
+      <div class="form-group">
+        <div class="toggle-row">
+          <span class="toggle-label">GitHub 加速下载（使用代理站点）</span>
+          <div class="toggle-wrap" onclick="toggleGithubProxy()">
+            <div class="toggle" id="fGithubProxyToggle"><div class="toggle-knob"></div></div>
+          </div>
+        </div>
+        <div class="hint">开启后，下载 GitHub 相关文件时会自动探测并使用最快的代理站点，失败则依次尝试下一个；关闭则始终直连（默认关闭）。此设置为全局设置，对所有任务生效。</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>当前版本</label>
+          <input id="fVersion" placeholder="不确定可留空">
+          <div class="hint">例如：v1.2.3</div>
+        </div>
+        <div class="form-group">
+          <label>下载文件关键词 <span class="req">*</span></label>
+          <input id="fKeyword" placeholder="例如：linux amd64">
+          <div class="hint">空格分隔多个关键词，模糊匹配评分</div>
+        </div>
+      </div>
+      <div id="fRenameTargetRow" class="form-row">
+        <div class="form-group">
+          <label>文件/核心重命名</label>
+          <input id="fRename" placeholder="留空则保持原文件名">
+        </div>
+        <div class="form-group">
+          <label>文件/核心放置路径 <span class="req">*</span></label>
+          <input id="fTarget" placeholder="/usr/local/bin">
+          <div class="hint">绝对路径，目录不存在会自动创建</div>
+        </div>
+      </div>
+      <div class="form-group" id="fBinaryKeywordRow">
+        <label>核心关键词</label>
+        <input id="fBinaryKeyword" placeholder="例如：frpc">
+        <div class="hint">压缩包内有多个二进制文件时，用于指定选哪个（留空则自动判断）</div>
+      </div>
+      <hr class="divider">
+      <div class="form-group">
+        <label>更新前执行</label>
+        <textarea id="fPre" rows="2" placeholder="例如：systemctl stop myservice"></textarea>
+      </div>
+      <div class="form-group">
+        <label>更新后执行</label>
+        <textarea id="fPost" rows="2" placeholder="例如：systemctl start myservice"></textarea>
+      </div>
+      <div class="form-group">
+        <label>定时任务（Cron）</label>
+        <input id="fCron" placeholder="例如：0 2 * * *  留空则仅手动触发">
+        <div class="hint">标准 5 段 cron 表达式。留空则只能在面板手动触发更新。</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveTask()">&#x1F4BE; 保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Log Modal -->
+<div class="modal-bg hidden" id="logModalBg">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h2 id="logModalTitle">运行日志</h2>
+      <button class="modal-close" onclick="closeLogModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="log-box" id="logBox">（暂无日志）</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="refreshLog()">&#x1F503; 刷新</button>
+      <button class="btn btn-ghost" onclick="closeLogModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-bg hidden" id="confirmModalBg">
+  <div class="confirm-modal">
+    <span class="confirm-icon" id="confirmIcon">&#x26A0;&#xFE0F;</span>
+    <div class="confirm-title" id="confirmTitle">确认操作</div>
+    <div class="confirm-msg" id="confirmMsg"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" onclick="confirmCancel()">取消</button>
+      <button class="btn btn-success" id="confirmOkBtn" onclick="confirmOk()">确认</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+(function(){
+  "use strict";
+  function g(id){ return document.getElementById(id); }
+
+  // ---- Toast ----
+  function toast(msg,type,dur){
+    type=type||'info';dur=dur||3000;
+    var el=document.createElement('div');el.className='toast '+type;
+    var icons={info:'&#8505;&#65039;',success:'&#x2705;',error:'&#x274C;'};
+    el.innerHTML='<span>'+(icons[type]||'')+'</span><span>'+msg+'</span>';
+    g('toasts').appendChild(el);setTimeout(function(){el.remove();},dur);
+  }
+
+  // ---- Confirm dialog ----
+  var _confirmResolve=null;
+  function showConfirm(title,msg,icon,okLabel,okClass){
+    return new Promise(function(resolve){
+      _confirmResolve=resolve;
+      g('confirmTitle').textContent=title;
+      g('confirmMsg').textContent=msg;
+      g('confirmIcon').innerHTML=icon||'&#x26A0;&#xFE0F;';
+      var ob=g('confirmOkBtn');ob.textContent=okLabel||'确认';ob.className='btn '+(okClass||'btn-success');
+      g('confirmModalBg').classList.remove('hidden');
+    });
+  }
+  window.confirmOk=function(){g('confirmModalBg').classList.add('hidden');if(_confirmResolve){_confirmResolve(true);_confirmResolve=null;}};
+  window.confirmCancel=function(){g('confirmModalBg').classList.add('hidden');if(_confirmResolve){_confirmResolve(false);_confirmResolve=null;}};
+
+  // ---- State ----
+  var tasks=[],editID=null,logTaskID=null,githubProxyEnabled=false;
+
+  // ---- API ----
+  function api(method,path,body){
+    var opts={method:method,headers:{'Content-Type':'application/json'}};
+    if(body) opts.body=JSON.stringify(body);
+    return fetch(path,opts).then(function(r){
+      if(r.status===401){window.location.href='/login';throw new Error('未登录');}
+      return r.json().then(function(data){if(!r.ok) throw new Error(data.error||'请求失败');return data;});
+    });
+  }
+
+  // ---- Auth (only relevant when login is enabled server-side) ----
+  function hasSessionCookie(){
+    return document.cookie.split(';').some(function(c){return c.trim().indexOf('updater_session=')===0;});
+  }
+  if(hasSessionCookie()){
+    var lb=document.getElementById('logoutBtn');
+    if(lb) lb.style.display='inline-flex';
+  }
+  window.doLogout=function(){
+    fetch('/api/logout',{method:'POST'}).then(function(){window.location.href='/login';});
+  };
+
+  // ---- Load tasks ----
+  function loadTasks(){
+    fetch('/api/tasks?_='+Date.now())
+      .then(function(r){
+        if(r.status===401){window.location.href='/login';throw new Error('未登录');}
+        return r.json();
+      })
+      .then(function(data){
+        if(Array.isArray(data)){
+          tasks=data;
+        } else if(data&&typeof data==='object'&&!data.error){
+          tasks=Object.values(data);
+        } else {
+          tasks=[];
+        }
+        renderTasks();
+      })
+      .catch(function(e){
+        console.error('loadTasks error',e);
+        toast('加载任务失败: '+e.message,'error');
+      });
+  }
+
+  function statusLabel(s){
+    var map={idle:'空闲',ok:'正常',error:'错误',checking:'检测中\u2026',updating:'更新中\u2026',update_available:'有新版本'};
+    return map[s]||s;
+  }
+
+  function timeFmt(ts){
+    if(!ts||ts==='0001-01-01T00:00:00Z') return '\u2014';
+    var d=new Date(ts),now=new Date(),diff=Math.floor((now-d)/1000);
+    if(diff<60) return diff+'秒前';
+    if(diff<3600) return Math.floor(diff/60)+'分钟前';
+    if(diff<86400) return Math.floor(diff/3600)+'小时前';
+    return d.toLocaleDateString('zh-CN');
+  }
+
+  function repoShort(url){return url.replace('https://github.com/','').replace('http://github.com/','');}
+
+  function escHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function renderVersions(cur,latest){
+    var curTag=cur?'<span class="version-tag">'+escHtml(cur)+'</span>':'<span class="version-tag empty">未知</span>';
+    var latTag=latest?('<span class="version-tag latest">'+escHtml(latest)+(latest===cur?' &#x2713;':'')+'</span>'):'<span class="version-tag empty">未检测</span>';
+    return '<div class="info-row"><span class="info-label">当前版本</span>'+curTag+'</div>'
+          +'<div class="info-row"><span class="info-label">最新版本</span>'+latTag+'</div>';
+  }
+
+  function renderTasks(){
+    var grid=g('taskGrid');
+    if(!tasks||!tasks.length){grid.innerHTML='';return;}
+    grid.innerHTML=tasks.map(function(t){
+      var isCore=t.update_type==='core';
+      var isPkg=t.update_type==='package';
+      var barColor=isCore?'#6c63ff':(isPkg?'#f59e0b':'#10b981');
+      var badgeCls=isCore?'badge-core':(isPkg?'badge-package':'badge-file');
+      var badgeLabel=isCore?'CORE':(isPkg?'PKG':'FILE');
+      var dotCls='dot-'+(t.status||'idle');
+      var errHtml=t.last_error?'<span style="color:var(--danger);font-size:.72rem"> &mdash; '+escHtml(t.last_error.substring(0,60))+'</span>':'';
+      var updTime=(t.last_update&&t.last_update!=='0001-01-01T00:00:00Z')?'<span class="info-label" style="margin-left:6px">更新</span><span class="last-time">'+timeFmt(t.last_update)+'</span>':'';
+      var cur=escHtml(t.current_version||'');
+      var lat=escHtml(t.latest_version||'');
+      // Target path and keyword rows - hidden for package type
+      var targetRow=isPkg
+        ?'<div class="info-row"><span class="info-label">目标路径</span><span class="info-val" style="color:var(--text2)">无</span></div>'
+        :'<div class="info-row"><span class="info-label">目标路径</span><span class="info-val" title="'+escHtml(t.target_path||'')+'">'+escHtml(t.target_path||'')+'</span></div>';
+      return '<div class="card" id="card-'+t.id+'">'
+        +'<div class="card-top-bar" style="background:'+barColor+'"></div>'
+        +'<div class="card-header">'
+        +'<div><div class="card-title">'+escHtml(t.name)+'<span class="type-badge '+badgeCls+'">'+badgeLabel+'</span></div>'
+        +'<a class="repo-link" href="'+escHtml(t.repo_url)+'" target="_blank">&#x2197; '+escHtml(repoShort(t.repo_url))+'</a></div>'
+        +'<button class="btn btn-ghost btn-sm" onclick="window._editTask(\''+t.id+'\')" title="编辑">&#x270F;&#xFE0F;</button>'
+        +'</div>'
+        +'<div class="card-body">'
+        +renderVersions(t.current_version,t.latest_version)
+        +targetRow
+        +'<div class="info-row"><span class="info-label">关键词</span><span class="info-val">'+escHtml(t.file_keyword)+'</span></div>'
+        +'<div class="info-row"><span class="info-label">定时</span>'+(t.cron?'<span class="cron-tag">'+escHtml(t.cron)+'</span>':'<span class="info-val" style="color:var(--text2)">无</span>')+'</div>'
+        +'<div class="info-row"><div class="status-dot '+dotCls+'"></div><span class="info-val">'+statusLabel(t.status||'idle')+errHtml+'</span></div>'
+        +'<div class="info-row"><span class="info-label">上次检测</span><span class="last-time">'+timeFmt(t.last_check)+'</span>'+updTime+'</div>'
+        +'</div>'
+        +'<div class="card-actions">'
+        +'<button class="btn btn-ghost btn-sm" id="btnCheck-'+t.id+'" onclick="window._checkTask(\''+t.id+'\')">&#x1F50D; 检测</button>'
+        +'<button class="btn btn-success btn-sm" id="btnUpdate-'+t.id+'" onclick="window._updateTask(\''+t.id+'\',\''+escHtml(t.name)+'\',\''+cur+'\',\''+lat+'\')">&#x2B06; 更新</button>'
+        +'<button class="btn btn-ghost btn-sm" onclick="window._openLog(\''+t.id+'\',\''+escHtml(t.name)+'\')">&#x1F4CB; 日志</button>'
+        +'<button class="btn btn-danger btn-sm" onclick="window._deleteTask(\''+t.id+'\',\''+escHtml(t.name)+'\')">&#x1F5D1;</button>'
+        +'</div></div>';
+    }).join('');
+  }
+
+  // ---- Actions ----
+  window._checkTask=function(id){
+    var btn=g('btnCheck-'+id);if(btn){btn.disabled=true;btn.textContent='检测中\u2026';}
+    api('POST','/api/check/'+id).then(function(){
+      toast('开始检测，稍后自动刷新','info');
+      setTimeout(loadTasks,3000);setTimeout(loadTasks,8000);
+    }).catch(function(e){toast(e.message,'error');})
+    .finally(function(){if(btn){btn.disabled=false;btn.innerHTML='&#x1F50D; 检测';}});
+  };
+
+  window._updateTask=function(id,name,cur,latest){
+    var msg;
+    if(!cur){
+      msg='任务「'+name+'」尚无当前版本记录，将立即下载最新版本'+(latest?'（'+latest+'）':'')+'\uff0c是否继续？';
+    } else if(latest&&cur===latest){
+      msg='当前版本「'+cur+'」已是最新版本，是否仍要强制重新下载并安装？';
+    } else if(latest&&cur!==latest){
+      msg='将从 '+cur+' 更新到 '+latest+'，是否继续？';
+    } else {
+      msg='将为「'+name+'」执行更新，是否继续？';
+    }
+    showConfirm('确认更新',msg,'&#x2B06;&#xFE0F;','确认更新','btn-success').then(function(ok){
+      if(!ok) return;
+      var btn=g('btnUpdate-'+id);if(btn){btn.disabled=true;btn.textContent='更新中\u2026';}
+      api('POST','/api/update/'+id).then(function(){
+        toast('更新任务已启动','info');
+        setTimeout(loadTasks,3000);setTimeout(loadTasks,15000);setTimeout(loadTasks,40000);
+      }).catch(function(e){toast(e.message,'error');})
+      .finally(function(){if(btn){btn.disabled=false;btn.innerHTML='&#x2B06; 更新';}});
+    });
+  };
+
+  window._deleteTask=function(id,name){
+    showConfirm('删除任务','确定要删除任务「'+name+'」？此操作不可恢复。','&#x1F5D1;&#xFE0F;','删除','btn-danger').then(function(ok){
+      if(!ok) return;
+      api('DELETE','/api/tasks/'+id).then(function(){toast('已删除','success');loadTasks();}).catch(function(e){toast(e.message,'error');});
+    });
+  };
+
+  // ---- Global settings (GitHub proxy) ----
+  function renderGithubProxyToggle(){
+    var el=g('fGithubProxyToggle');
+    if(!el) return;
+    el.className='toggle'+(githubProxyEnabled?' on':'');
+  }
+  function loadSettings(){
+    return api('GET','/api/settings').then(function(data){
+      githubProxyEnabled=!!data.github_proxy_enabled;
+      renderGithubProxyToggle();
+    }).catch(function(){});
+  }
+  window.toggleGithubProxy=function(){
+    githubProxyEnabled=!githubProxyEnabled;
+    renderGithubProxyToggle();
+    api('PUT','/api/settings',{github_proxy_enabled:githubProxyEnabled}).catch(function(e){
+      toast(e.message,'error');
+      githubProxyEnabled=!githubProxyEnabled;
+      renderGithubProxyToggle();
+    });
+  };
+
+  // ---- Modal ----
+  window.openModal=function(){
+    editID=null;g('modalTitle').textContent='添加任务';
+    ['fName','fRepo','fVersion','fKeyword','fRename','fTarget','fPre','fPost','fCron','fBinaryKeyword'].forEach(function(id){g(id).value='';});
+    g('fType').value='core';g('modalBg').classList.remove('hidden');
+    updateTypeVisibility();
+    loadSettings();
+  };
+  window._editTask=function(id){
+    var t=null;for(var i=0;i<tasks.length;i++){if(tasks[i].id===id){t=tasks[i];break;}}if(!t)return;
+    editID=id;g('modalTitle').textContent='编辑任务';
+    g('fName').value=t.name||'';g('fType').value=t.update_type||'core';g('fRepo').value=t.repo_url||'';
+    g('fVersion').value=t.current_version||'';g('fKeyword').value=t.file_keyword||'';g('fRename').value=t.rename||'';
+    g('fTarget').value=t.target_path||'';g('fPre').value=t.pre_cmd||'';g('fPost').value=t.post_cmd||'';g('fCron').value=t.cron||'';
+    g('fBinaryKeyword').value=t.binary_keyword||'';
+    g('modalBg').classList.remove('hidden');
+    updateTypeVisibility();
+    loadSettings();
+  };
+  window.closeModal=function(){g('modalBg').classList.add('hidden');};
+
+  window.saveTask=function(){
+    var name=g('fName').value.trim(),repo=g('fRepo').value.trim(),keyword=g('fKeyword').value.trim(),target=g('fTarget').value.trim();
+    var type=g('fType').value;
+    var isPkg=type==='package';
+    if(!name){toast('请填写任务名称','error');return;}
+    if(!repo){toast('请填写 GitHub 项目地址','error');return;}
+    if(!keyword){toast('请填写下载文件关键词','error');return;}
+    if(!isPkg&&!target){toast('请填写文件放置路径','error');return;}
+    var body={name:name,repo_url:repo,update_type:type,current_version:g('fVersion').value.trim(),file_keyword:keyword,binary_keyword:g('fBinaryKeyword').value.trim(),rename:g('fRename').value.trim(),target_path:target,pre_cmd:g('fPre').value.trim(),post_cmd:g('fPost').value.trim(),cron:g('fCron').value.trim()};
+    var method=editID?'PUT':'POST',path=editID?'/api/tasks/'+editID:'/api/tasks';
+    api(method,path,body).then(function(){toast(editID?'已保存':'任务已创建','success');closeModal();loadTasks();}).catch(function(e){toast(e.message,'error');});
+  };
+
+  // ---- Log Modal ----
+  window._openLog=function(id,name){logTaskID=id;g('logModalTitle').textContent='日志 \u2014 '+name;g('logModalBg').classList.remove('hidden');refreshLog();};
+  window.closeLogModal=function(){g('logModalBg').classList.add('hidden');logTaskID=null;};
+  window.refreshLog=function(){
+    if(!logTaskID) return;
+    api('GET','/api/logs/'+logTaskID).then(function(data){
+      var box=g('logBox');
+      if(!data.log){box.textContent='（暂无日志）';return;}
+      box.innerHTML=colorizeLog(escHtml(data.log));box.scrollTop=box.scrollHeight;
+    }).catch(function(e){toast(e.message,'error');});
+  };
+
+  function colorizeLog(text){
+    return text
+      .replace(/(={10,}[^\n]*={10,})/g,'<span class="log-sep">$1</span>')
+      .replace(/(&#x2705;[^\n]*|&#x1F389;[^\n]*|&#x2713;[^\n]*)/g,'<span class="log-ok">$1</span>')
+      .replace(/(&#x274C;[^\n]*)/g,'<span class="log-err">$1</span>')
+      .replace(/(&#x2B07;[^\n]*|&#x1F4E6;[^\n]*|&#x1F50D;[^\n]*|&#x1F4CB;[^\n]*|&#x1F4C2;[^\n]*|&#x2699;[^\n]*)/g,'<span class="log-info">$1</span>')
+      .replace(/(&#x26A0;[^\n]*|&#x1F195;[^\n]*)/g,'<span class="log-warn">$1</span>');
+  }
+
+  function updateTypeVisibility(){
+    var type=g('fType').value;
+    var isPkg=type==='package';
+    var isCore=type==='core';
+    g('fRenameTargetRow').style.display=isPkg?'none':'';
+    g('fBinaryKeywordRow').style.display=isCore?'':'none';
+  }
+  g('fType').addEventListener('change',updateTypeVisibility);
+
+  g('modalBg').addEventListener('click',function(e){if(e.target===g('modalBg'))closeModal();});
+  g('logModalBg').addEventListener('click',function(e){if(e.target===g('logModalBg'))closeLogModal();});
+  g('confirmModalBg').addEventListener('click',function(e){if(e.target===g('confirmModalBg'))confirmCancel();});
+
+  setInterval(loadTasks,10000);
+  loadTasks();
+})();
+</script>
+</body>
+</html>
+"#;
